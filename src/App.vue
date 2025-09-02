@@ -64,6 +64,8 @@ export default {
 - 支持**粗体**和*斜体*
 - 支持代码块
 
+<div style="color:red">Mmm</div>
+
 \`\`\`trank
 // 示例代码
 function greet(name) {

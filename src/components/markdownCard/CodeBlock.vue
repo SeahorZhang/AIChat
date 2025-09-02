@@ -1,6 +1,6 @@
 <template>
   <div class="code-block">
-   1-{{ content }}
+   1-{{ token.content }}
   </div>
 </template>
 
@@ -8,9 +8,9 @@
 export default {
   name: 'CodeBlock',
   props: {
-    content: {
-      type: String,
-      default: ''
+    token: {
+      type: Object,
+      default: () => ({})
     }
   }
 }

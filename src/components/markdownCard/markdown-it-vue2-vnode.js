@@ -1,28 +1,34 @@
 // markdown-it-vue2-vnode.js
-export default function markdownItVue2VNode(md, { createCodeBlock, components = {} } = {}) {
+export default function markdownItVue2VNode(
+  md,
+  { createCodeBlock, components = {} } = {}
+) {
   const renderers = {
-    text: (token, h) => h('span', {}, [token.content]),
-    code_inline: (token, h) => h('code', {}, [token.content]),
+    text: (token, h) => h("span", {}, [token.content]),
+    code_inline: (token, h) => h("code", {}, [token.content]),
     fence: (token, h) => {
       // 如果是注册的组件名，则渲染组件
       if (components[token.info]) {
         return h(components[token.info], {
-          props: { content: token.content } // 传递内容作为 prop
+          props: { token }, // 传递内容作为 prop
         });
       }
       return createCodeBlock
         ? createCodeBlock(token, h)
-        : h('pre', {}, [h('code', {}, [token.content])]);
+        : h("pre", {}, [h("code", {}, [token.content])]);
     },
     image: (token, h) => {
-      const src = token.attrs?.find((a) => a[0] === 'src')?.[1] || '';
-      const alt = token.attrs?.find((a) => a[0] === 'alt')?.[1] || token.content || '';
-      return h('img', { attrs: { src, alt } });
+      const src = token.attrs?.find((a) => a[0] === "src")?.[1] || "";
+      const alt =
+        token.attrs?.find((a) => a[0] === "alt")?.[1] || token.content || "";
+      return h("img", { attrs: { src, alt } });
     },
-    softbreak: (token, h) => h('br'),
-    hardbreak: (token, h) => h('br'),
-    html_inline: (token, h) => h('span', { domProps: { innerHTML: token.content } }),
-    html_block: (token, h) => h('div', { domProps: { innerHTML: token.content } }),
+    softbreak: (token, h) => h("br"),
+    hardbreak: (token, h) => h("br"),
+    html_inline: (token, h) =>
+      h("span", { domProps: { innerHTML: token.content } }),
+    html_block: (token, h) =>
+      h("div", { domProps: { innerHTML: token.content } }),
     inline: (token, h, renderTokens) => renderTokens(token.children || [], h),
   };
 
@@ -34,7 +40,7 @@ export default function markdownItVue2VNode(md, { createCodeBlock, components = 
       const parent = stack.length > 0 ? stack[stack.length - 1] : null;
 
       if (token.nesting === 1) {
-        const tagName = token.tag || 'div';
+        const tagName = token.tag || "div";
 
         // 判断是否是自定义组件
         if (components[tagName]) {
@@ -57,7 +63,7 @@ export default function markdownItVue2VNode(md, { createCodeBlock, components = 
         if (renderer) {
           childNode = renderer(token, h, renderTokens);
         } else if (token.content) {
-          childNode = h('span', {}, [token.content]);
+          childNode = h("span", {}, [token.content]);
         }
 
         if (childNode) {
