@@ -57,24 +57,21 @@ export default {
         id: nanoid(),
         type: 'other',
         content: `# Markdown示例
-      // 这是一个支持**Markdown**渲染的气泡组件。
+这是一个支持**Markdown**渲染的气泡组件。
 
-      // ## 功能特点
-      // - 支持标题
-      // - 支持**粗体**和*斜体*
-      // - 支持代码块
+## 功能特点
+- 支持标题
+- 支持**粗体**和*斜体*
+- 支持代码块
 
-      // \`\`\`javascript
-      // // 示例代码
-      // function greet(name) {
-      //     return 'Hello, ' + name + '!';
-      // }
-      // console.log(greet('World'));
-      // \`\`\``,
-
+\`\`\`javascript
+// 示例代码
+function greet(name) {
+    return 'Hello, ' + name + '!';
+}
+console.log(greet('World'));
+\`\`\``,
       })
-
-
     }
   }
 }

@@ -39,7 +39,7 @@ export default {
 <style lang="less" scoped>
 .sc-bubble {
   display: flex;
-  gap: 4px;
+  gap: 12px;
 
   &-start {
     flex-direction: row;
