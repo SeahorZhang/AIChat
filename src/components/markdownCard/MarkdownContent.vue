@@ -1,7 +1,8 @@
 <script>
 import newMarkdown from './newMarkdown';
-import { tokensToAst, htmlToVNode, isValidTagName } from './cardParser';
+import { isValidTagName } from './cardParser';
 import CodeBlock from './CodeBlock.vue';
+
 export default {
   name: 'markdown-content',
   components: {
@@ -14,145 +15,110 @@ export default {
     }
   },
   render(h) {
-    const mdt = newMarkdown()
-
+    const mdt = newMarkdown();
     const tokens = mdt.parse(this.content || '', {});
-    const ast = tokensToAst(tokens);
-    const vnodes = astToVnodes(ast);
-
-    function astToVnodes(nodes) {
-      return nodes.map(node => processASTNode(node));
-    }
-
-    function processASTNode(node) {
-      if (node.nodeType === 'html_inline' || node.nodeType === 'html_block') {
-        const outerVnode = htmlToVNode(node.openNode?.content || '', h)[0];
-        if (outerVnode) {
-          const outerChildren = outerVnode?.children || [];
-          if (Array.isArray(outerChildren)) {
-            outerVnode.children = [...outerChildren, ...node.children.map(child => processASTNode(child))];
-          } else {
-            outerVnode.children = [outerChildren, ...node.children.map(child => processASTNode(child))];
-          }
-          return outerVnode;
-        } else {
-          return node.openNode?.content || ''
-        }
-      }
-
-      if (node.nodeType === 'inline') {
-        const html = mdt.renderer.render([node.openNode], mdt.options, {});
-        const vNodes = htmlToVNode(html, h);
-        return h('div', vNodes);
-      }
-
-      if (isToken(node)) {
-        return processToken(node);
-      }
-
-      return processASTNodeInternal(node);
-    }
-
-    function isToken(node) {
-      return 'type' in node && 'content' in node;
-    }
-
-    function processToken(token) {
-      if (token.type === 'text') {
-        return token.content;
-      }
-
-      if (token.type === 'inline') {
-        return processInlineToken(token);
-      }
-
-      if (token.type === 'fence') {
-        return processFenceToken(token);
-      }
-
-      if (token.type === 'softbreak') {
-        return mdt.options.breaks ? h('br') : '\n';
-      }
-
-      if (token.type === 'html_block' || token.type === 'html_inline') {
-        return token.type === 'html_block' ? h('div', { innerHTML: token.content }) : h('span', { innerHTML: token.content });
-      }
-
-      // 优先使用token的tag属性
-      if (token.tag) {
-        const tagName = isValidTagName(token.tag) ? token.tag : 'div'
-        const attrs = convertAttrsToProps(token.attrs || []);
-        return h(tagName, { ...attrs, key: token.vNodeKey }, token.content);
-      }
-
-      return token.content;
-    }
 
     function convertAttrsToProps(attrs) {
+      if (!attrs) return {};
       return attrs.reduce((acc, [key, value]) => {
         acc[key] = value;
         return acc;
       }, {});
     }
 
-
-    function processFenceToken(token) {
-      const language = token.info?.replace(/<span\b[^>]*>/i, '').replace('</span>', '') || '';
+    function createCodeBlock(token) {
+      const language = token.info || '';
       const code = token.content;
-      return createCodeBlock(language, code, token.tokenIndex);
-    }
-
-    function createCodeBlock(
-      language,
-      code,
-      blockIndex,
-    ) {
-      return h(
-        CodeBlock,
-        {
+      return h(CodeBlock, {
+        props: {
           language,
           code,
-          blockIndex,
-          key: `code-block-${blockIndex}`,
         },
-      );
+        key: `code-block-${token.map ? token.map[0] : ''}`,
+      });
     }
 
-
-    function processInlineToken(token) {
-      const html = mdt.renderer.render([token], mdt.options, {});
-      const vNodes = htmlToVNode(html, h);
-      return h('div', vNodes);
+    function tokensToVNodes(tokens) {
+      const stack = [];
+      const result = [];
+      for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        const parent = stack.length > 0 ? stack[stack.length - 1] : null;
+        if (token.nesting === 1) {
+          // Opening tag
+          const tagName = isValidTagName(token.tag) ? token.tag : 'div';
+          const vnode = h(tagName, { attrs: convertAttrsToProps(token.attrs) }, []);
+          if (parent) {
+            parent.children.push(vnode);
+          } else {
+            result.push(vnode);
+          }
+          stack.push(vnode);
+        } else if (token.nesting === -1) {
+          // Closing tag
+          stack.pop();
+        } else {
+          // Content or self-closing tag
+          let childNode;
+          if (token.type === 'inline') {
+            const inlineNodes = tokensToVNodes(token.children);
+            if (parent) {
+              parent.children.push(...inlineNodes);
+            } else {
+              result.push(h('span', inlineNodes));
+            }
+            continue;
+          }
+          switch (token.type) {
+            case 'text':
+              childNode = h('span', [token.content]);
+              break;
+            case 'fence':
+              childNode = createCodeBlock(token);
+              break;
+            case 'code_inline':
+              childNode = h('code', { attrs: convertAttrsToProps(token.attrs) }, [token.content]);
+              break;
+            case 'image': {
+              const attrs = convertAttrsToProps(token.attrs);
+              const src = attrs.src || '';
+              const alt = token.content || '';
+              childNode = h('img', { attrs: { ...attrs, src, alt } });
+              break;
+            }
+            case 'softbreak':
+              childNode = mdt.options.breaks ? h('br') : h('span', [' ']);
+              break;
+            case 'hardbreak':
+              childNode = h('br');
+              break;
+            case 'html_inline':
+            case 'html_block':
+              childNode = h(token.type === 'html_block' ? 'div' : 'span', {
+                domProps: { innerHTML: token.content },
+              });
+              break;
+            default:
+              if (token.content) {
+                childNode = h('span', [token.content]);
+              }
+              break;
+          }
+          if (childNode) {
+            if (parent) {
+              if (!parent.children) parent.children = [];
+              parent.children.push(childNode);
+            } else {
+              result.push(childNode);
+            }
+          }
+        }
+      }
+      return result;
     }
 
-
-    function processASTNodeInternal(node) {
-      let tagName = 'div';
-      if (node.openNode?.tag && isValidTagName(node.openNode?.tag)) {
-        tagName = node.openNode?.tag
-      }
-      const attrs = convertAttrsToProps(node.openNode?.attrs || []);
-
-      // 特殊处理fence类型的token
-      if (node.openNode?.type === 'fence') {
-        return processFenceToken(node.openNode);
-      }
-
-      // 处理所有带tag的AST节点
-      if (node.openNode?.tag) {
-        let tagName = isValidTagName(node.openNode?.tag) ? node.openNode?.tag : 'div'
-        const children = node.children.map(child => processASTNode(child));
-        const attrs = convertAttrsToProps(node.openNode?.attrs || []);
-        return h(tagName, { ...attrs, key: node.vNodeKey }, children);
-      }
-
-      const children = node.children.map(child => processASTNode(child));
-
-      return h(tagName, { ...attrs, key: node.vNodeKey }, children);
-    }
-
-
-    return h('div', vnodes)
+    const vnodes = tokensToVNodes(tokens);
+    return h('div', { class: 'markdown-body' }, vnodes);
   }
 }
 </script>
