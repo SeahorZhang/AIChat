@@ -21,5 +21,4 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.markdown-card {}
 </style>

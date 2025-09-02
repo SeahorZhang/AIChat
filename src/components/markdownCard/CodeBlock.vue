@@ -1,12 +1,18 @@
 <template>
-  <div>
-    <h1>Code Block</h1>
+  <div class="code-block">
+   1-{{ content }}
   </div>
 </template>
 
 <script>
 export default {
-  name: 'CodeBlock'
+  name: 'CodeBlock',
+  props: {
+    content: {
+      type: String,
+      default: ''
+    }
+  }
 }
 </script>
 

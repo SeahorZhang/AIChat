@@ -64,7 +64,7 @@ export default {
 - 支持**粗体**和*斜体*
 - 支持代码块
 
-\`\`\`javascript
+\`\`\`trank
 // 示例代码
 function greet(name) {
     return 'Hello, ' + name + '!';
