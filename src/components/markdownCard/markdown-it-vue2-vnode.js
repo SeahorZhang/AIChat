@@ -1,4 +1,12 @@
 // markdown-it-vue2-vnode.js
+import sanitizeHtml from "sanitize-html";
+
+const sanitizeOptions = {
+  allowedAttributes: {
+    "*": ["style", "class", "alt", "href", "title"],
+  },
+};
+
 export default function markdownItVue2VNode(
   md,
   { createCodeBlock, components = {} } = {}
@@ -26,9 +34,13 @@ export default function markdownItVue2VNode(
     softbreak: (token, h) => h("br"),
     hardbreak: (token, h) => h("br"),
     html_inline: (token, h) =>
-      h("span", { domProps: { innerHTML: token.content } }),
+      h("span", {
+        domProps: { innerHTML: sanitizeHtml(token.content, sanitizeOptions) },
+      }),
     html_block: (token, h) =>
-      h("div", { domProps: { innerHTML: token.content } }),
+      h("div", {
+        domProps: { innerHTML: sanitizeHtml(token.content, sanitizeOptions) },
+      }),
     inline: (token, h, renderTokens) => renderTokens(token.children || [], h),
   };
 
