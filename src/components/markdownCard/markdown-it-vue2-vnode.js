@@ -45,27 +45,26 @@ export default function markdownItVue2VNode(
   };
 
   function renderTokens(tokens, h) {
-    const vnodes = [];
-    const stack = [];
+    // 用 root 节点统一管理所有 children
+    const root = { children: [] };
+    // 栈结构，每个元素为 { vnode, children }
+    const stack = [root];
 
     for (const token of tokens) {
-      const parent = stack.length > 0 ? stack[stack.length - 1] : null;
+      const parent = stack[stack.length - 1];
 
       if (token.nesting === 1) {
         const tagName = token.tag || "div";
-
+        let vnode;
         // 判断是否是自定义组件
         if (components[tagName]) {
-          const vnode = h(components[tagName], {}, []);
-          if (parent) parent.children.push(vnode);
-          else vnodes.push(vnode);
-          stack.push(vnode);
-          continue;
+          vnode = h(components[tagName], {}, []);
+        } else {
+          vnode = h(tagName, {}, []);
         }
-
-        const vnode = h(tagName, {}, []);
-        if (parent) parent.children.push(vnode);
-        else vnodes.push(vnode);
+        // children 挂载到 vnode
+        vnode.children = [];
+        parent.children.push(vnode);
         stack.push(vnode);
       } else if (token.nesting === -1) {
         stack.pop();
@@ -79,14 +78,13 @@ export default function markdownItVue2VNode(
         }
 
         if (childNode) {
-          const target = parent ? parent.children : vnodes;
-          if (Array.isArray(childNode)) target.push(...childNode);
-          else target.push(childNode);
+          if (Array.isArray(childNode)) parent.children.push(...childNode);
+          else parent.children.push(childNode);
         }
       }
     }
 
-    return vnodes;
+    return root.children;
   }
 
   md.renderer.renderVNode = function (tokens, options, env, h) {
