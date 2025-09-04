@@ -17,10 +17,12 @@
         <el-button @click="showThinkingProcess">展示思考过程</el-button>
         <el-button>写一段代码</el-button>
       </div>
-      <div class="chat-input">
-        <el-input type="text" placeholder="Type your message here..." />
-        <el-button>Send</el-button>
-      </div>
+      <Sender class="chat-content" @submit="onSubmit" @cancel="onCancel">
+        <template #prefix>
+          <el-button icon="el-icon-s-help" round size="small" :type="isDeep ? 'primary' : 'default'"
+            @click="isDeep = !isDeep">深度思考</el-button>
+        </template>
+      </Sender>
     </div>
   </div>
 </template>
@@ -28,15 +30,18 @@
 <script>
 import ScBubble from './components/ScBubble.vue';
 import { nanoid } from 'nanoid/non-secure'
+import Sender from './components/Sender.vue';
 export default {
   name: 'App',
   components: {
-    ScBubble
+    ScBubble,
+    Sender
   },
   data() {
     return {
       // 第一项必为我的发问
       chartList: [],
+      isDeep: false
     }
   },
   computed: {
@@ -46,6 +51,12 @@ export default {
 
   },
   methods: {
+    onSubmit(val) {
+      console.log(1, val)
+    },
+    onCancel(val) {
+      console.log(2, val)
+    },
     showThinkingProcess() {
       this.chartList.push([{
         id: nanoid(),
@@ -85,7 +96,7 @@ console.log(greet('World'));
   flex-direction: column;
   padding: 20px;
   box-sizing: border-box;
-  background-color: #f5f5f5;
+  background-color: #fff;
 
   .chat-button {
     display: flex;
@@ -97,7 +108,6 @@ console.log(greet('World'));
     flex: 1;
     overflow-y: auto;
     border-radius: 5px;
-    background-color: #fff;
     padding: 20px 10px;
 
     >* {
@@ -105,18 +115,29 @@ console.log(greet('World'));
     }
   }
 
-  .chat-input {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f5f5f5;
-    border-radius: 5px;
+  .chat-content {
+    //   background-color: #fff;
     margin-top: 10px;
+    //   border-radius: 8px;
+    //   padding: 5px 12px;
 
-    .el-input {
-      flex: 1;
-      margin-right: 10px;
-    }
+    //   .chat-button{
+    //     margin-bottom: 12px;
+    //   }
   }
+
+  // .chat-input {
+  //   display: flex;
+  //   justify-content: space-between;
+  //   align-items: center;
+  //   background-color: #f5f5f5;
+  //   border-radius: 5px;
+  //   margin-top: 10px;
+
+  //   .el-input {
+  //     flex: 1;
+  //     margin-right: 10px;
+  //   }
+  // }
 }
 </style>
