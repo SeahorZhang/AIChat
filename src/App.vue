@@ -28,6 +28,16 @@
 <script>
 import ScBubble from './components/ScBubble.vue';
 import { nanoid } from 'nanoid/non-secure'
+
+// 模拟后端流式返回 markdown 内容
+async function* mockMarkdownStream(markdown, chunkSize = 8, interval = 1000) {
+  let i = 0;
+  while (i < markdown.length) {
+    await new Promise(resolve => setTimeout(resolve, interval));
+    yield markdown.slice(0, i + chunkSize);
+    i += chunkSize;
+  }
+}
 export default {
   name: 'App',
   components: {
@@ -46,34 +56,53 @@ export default {
 
   },
   methods: {
-    showThinkingProcess() {
+    async showThinkingProcess() {
       this.chartList.push([{
         id: nanoid(),
         type: 'mine',
         content: '对话中展示你的思考过程',
-      }])
+      }]);
 
-      this.chartList.at(-1).push({
+      // const markdown = `# Markdown示例\n这是一个支持**Markdown**渲染的气泡组件。\n\n## 功能特点\n- 支持标题\n- 支持**粗体**和*斜体*\n- 支持代码块\n\n<div style="color:red">Mmm</div>\n\n<think>\n// 示例代码\nfunction greet(name) {\n    return 'Hello, ' + name + '!';\n}\n</think>`;
+      const markdown = `# 一级标题
+<think>深度思考中。。。</think>
+
+## 二级标题
+
+### 三级标题
+
+这是一个段落，包含 **粗体**、*斜体*。
+
+这是另一段落。
+
+> 这是一个引用块。
+
+- 无序列表项 1
+- 无序列表项 2
+  - 嵌套列表项 2.1
+  - 嵌套列表项 2.2
+
+1. 有序列表项 1
+2. 有序列表项 2
+   1. 嵌套有序 2.1
+   2. 嵌套有序 2.2
+
+[这是一个链接](https://www.example.com)
+
+
+
+~~删除线~~ 示例`
+      const bubble = {
         id: nanoid(),
         type: 'other',
-        content: `# Markdown示例
-这是一个支持**Markdown**渲染的气泡组件。
+        content: '',
+      };
+      this.chartList.at(-1).push(bubble);
 
-## 功能特点
-- 支持标题
-- 支持**粗体**和*斜体*
-- 支持代码块
-
-<div style="color:red">Mmm</div>
-
-\`\`\`trank
-// 示例代码
-function greet(name) {
-    return 'Hello, ' + name + '!';
-}
-console.log(greet('World'));
-\`\`\``,
-      })
+      for await (const chunk of mockMarkdownStream(markdown, 1, 300)) {
+        bubble.content = chunk;
+        this.$forceUpdate();
+      }
     }
   }
 }
