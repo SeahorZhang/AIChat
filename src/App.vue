@@ -3,54 +3,17 @@
     <button @click="startStream">开始模拟逐字流式输出</button>
 
     <div v-for="(block, idx) in renderedBlocks" :key="idx" class="block">
-      <!-- 思考块 -->
-      <details v-if="block.type === 'tarnk'" open>
-        <summary>深度思考（点击展开/折叠）</summary>
-        <div class="thought-body">
-          <div v-html="block.content"></div>
-
-          <!-- 引用列表，默认展开 -->
-          <details open v-if="block.references.length">
-            <summary>引用来源</summary>
-            <div class="citation-list">
-              <a v-for="(link, i) in block.references" :key="i" :href="link.href" target="_blank">{{ link.display }}</a>
-            </div>
-          </details>
-        </div>
-      </details>
-
-      <!-- 普通文本 -->
-      <div v-else>{{ block.content }}</div>
+      <BlockRenderer :block="block" />
     </div>
   </div>
 </template>
 
 <script>
-function mockBackendStream(callback) {
-  const fullText =
-    "普通文本开头。\n" +
-    "<tarnk>分析开始...\n" +
-    "分析内容逐步生成...\n" +
-    "<citation><a href='https://vuejs.org'>Vue官方文档</a> " +
-    "<a href='https://developer.mozilla.org/'>MDN JS Guide</a></citation>\n分析完成。</tarnk>\n" +
-    "普通文本继续。\n" +
-    "<tarnk>第二段思考开始...\n" +
-    "<citation><a href='https://github.com/vuejs/vue'>Vue源码</a> " +
-    "<a href='https://www.javascript.com/'>JavaScript官网</a></citation>\n分析完成。</tarnk>\n" +
-    "全文输出完成。";
-
-  let i = 0;
-  function push() {
-    if (i < fullText.length) {
-      callback(fullText[i]);
-      i++;
-      setTimeout(push, 40);
-    }
-  }
-  push();
-}
+import { mockBackendStream } from "@/utils/mockBackendStream";
+import BlockRenderer from "@/components/BlockRenderer.vue";
 
 export default {
+  components: { BlockRenderer },
   data() {
     return {
       renderedBlocks: [],
@@ -65,14 +28,12 @@ export default {
       this.mode = "normal";
       this.tagBuffer = "";
       this.currentLink = null;
-
       mockBackendStream(this.handleChar);
     },
-
     handleChar(char) {
+      // ...existing code...
+      // 这里保留原有的 handleChar 逻辑
       this.tagBuffer += char;
-
-      // 标签模式切换
       if (this.tagBuffer.endsWith("<tarnk>")) {
         this.mode = "tarnk";
         this.tagBuffer = "";
@@ -108,12 +69,9 @@ export default {
         this.tagBuffer = "";
         return;
       }
-
-      // 非标签字符
       if (!this.tagBuffer.startsWith("<")) {
         const last = this.renderedBlocks[this.renderedBlocks.length - 1];
         if (!last) return;
-
         if (this.mode === "normal") {
           if (!last || last.type !== "normal") this.renderedBlocks.push({ type: "normal", content: "" });
           this.renderedBlocks[this.renderedBlocks.length - 1].content += char;
@@ -124,7 +82,6 @@ export default {
           const hrefMatch = char.match(/href=['"]([^'"]+)['"]/);
           if (hrefMatch && this.currentLink) this.currentLink.href = hrefMatch[1];
         }
-
         this.tagBuffer = "";
       }
     }
