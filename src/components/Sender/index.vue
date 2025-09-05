@@ -6,7 +6,7 @@
       </div>
     </div>
     <div @mousedown="onContentMouseDown" class="sender-content">
-      <div>
+      <div @mousedown.stop>
         <div ref="chatareaRef" class="sender-chat" />
       </div>
       <div class="sender-updown-action-list">
@@ -14,9 +14,8 @@
           <slot name="prefix" />
         </div>
         <div class="sender-action-list">
-          <el-button size="small" :disabled="chatState.isEmpty || disabled" icon="el-icon-s-promotion" round
-            type="primary">
-          </el-button>
+          <LoadingButton v-if="loading" @cancel="onCancel" />
+          <SendButton v-if="!loading" :disabled="chatState.isEmpty || disabled" @submit="onSubmit" />
         </div>
       </div>
     </div>
@@ -26,8 +25,14 @@
 <script>
 import ChatArea from 'chatarea'
 import 'chatarea/lib/ChatArea.css'
+import LoadingButton from './components/LoadingButton/index.vue'
+import SendButton from './components/SendButton/index.vue'
 
 export default {
+  components: {
+    LoadingButton,
+    SendButton
+  },
   props: {
     placeholder: {
       type: String,
@@ -41,6 +46,10 @@ export default {
       type: String,
       default: 'enter',
       validator: (value) => ['enter', 'shiftEnter'].includes(value)
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -103,6 +112,7 @@ export default {
         return;
       }
       this.$emit('submit', this.getCurrentValue());
+      this.chat.clear();
     },
     // 取消发送方法
     onCancel() {

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="chat-container">
-      <div class="chat-list">
+      <div class="chat-list" ref="chatListRef">
         <template v-for="item in chartList">
           <template v-for="chat in item">
             <ScBubble v-if="chat.type === 'mine'" :key="chat.id" :content="chat.content" placement="end">
@@ -14,10 +14,10 @@
         </template>
       </div>
       <div class="chat-button">
-        <el-button @click="showThinkingProcess">展示思考过程</el-button>
-        <el-button>写一段代码</el-button>
+        <el-button round size="small" @click="showThinkingProcess">展示思考过程</el-button>
+        <el-button round size="small">写一段代码</el-button>
       </div>
-      <Sender class="chat-content" @submit="onSubmit" @cancel="onCancel">
+      <Sender class="chat-content" @submit="onSubmit" @cancel="onCancel" :loading="loading">
         <template #prefix>
           <el-button icon="el-icon-s-help" round size="small" :type="isDeep ? 'primary' : 'default'"
             @click="isDeep = !isDeep">深度思考</el-button>
@@ -30,7 +30,7 @@
 <script>
 import ScBubble from './components/ScBubble.vue';
 import { nanoid } from 'nanoid/non-secure'
-import Sender from './components/Sender.vue';
+import Sender from './components/Sender/index.vue';
 export default {
   name: 'App',
   components: {
@@ -41,7 +41,8 @@ export default {
     return {
       // 第一项必为我的发问
       chartList: [],
-      isDeep: false
+      isDeep: false,
+      loading: false,
     }
   },
   computed: {
@@ -51,11 +52,20 @@ export default {
 
   },
   methods: {
+    scrollToBottom() {
+      this.$nextTick(() => {
+        const chatList = this.$refs.chatListRef
+        chatList.scrollTop = chatList.scrollHeight
+      })
+    },
     onSubmit(val) {
       console.log(1, val)
+      this.showThinkingProcess()
+      this.scrollToBottom()
     },
     onCancel(val) {
       console.log(2, val)
+      this.loading = false
     },
     showThinkingProcess() {
       this.chartList.push([{
@@ -94,14 +104,14 @@ console.log(greet('World'));
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 20px;
   box-sizing: border-box;
   background-color: #fff;
+  padding: 20px 0;
 
   .chat-button {
     display: flex;
     align-items: center;
-    margin-top: 10px;
+    margin: 10px 15px 0;
   }
 
   .chat-list {
@@ -117,7 +127,7 @@ console.log(greet('World'));
 
   .chat-content {
     //   background-color: #fff;
-    margin-top: 10px;
+    margin: 10px 15px 0;
     //   border-radius: 8px;
     //   padding: 5px 12px;
 
