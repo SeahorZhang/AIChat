@@ -12,6 +12,8 @@
             <ScBubble v-else :key="chat.id" is-markdown :content="chat.content" avatar="el-icon-user-solid" />
           </template>
         </template>
+
+        <Thinking  :content="thinkingContent" />
       </div>
       <div class="chat-button">
         <el-button round size="small" @click="showThinkingProcess">展示思考过程</el-button>
@@ -31,11 +33,13 @@
 import ScBubble from './components/ScBubble.vue';
 import { nanoid } from 'nanoid/non-secure'
 import Sender from './components/Sender/index.vue';
+import Thinking from './components/Thinking.vue';
 export default {
   name: 'App',
   components: {
     ScBubble,
-    Sender
+    Sender,
+    Thinking
   },
   data() {
     return {
@@ -43,6 +47,8 @@ export default {
       chartList: [],
       isDeep: false,
       loading: false,
+      showThinking: false,
+      thinkingContent: '我现在需要回答用户的问题：“json 来历”。首先，我应该明确用户想知道 JSON 的起源、发展历史以及相关的关键人物和事件。',
     }
   },
   computed: {
@@ -102,6 +108,8 @@ console.log(greet('World'));
 .chat-container {
   width: 100%;
   height: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
