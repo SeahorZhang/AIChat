@@ -1,6 +1,7 @@
 import { find, html, svg } from "property-information";
 
 export function render(hast, attrs, slots, customAttrs, h) {
+  console.log(8, slots);
   return h(
     "div",
     {},

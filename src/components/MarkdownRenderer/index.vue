@@ -14,7 +14,7 @@ export default {
     content: {
       type: String,
       default: ''
-    }
+    },
   },
   render(h) {
     const processor = unified()
@@ -36,8 +36,7 @@ export default {
     const mdast = processor.parse(this.content); // 解析为MDAST
     const hast = processor.runSync(mdast);// 转换为HAST
 
-
-    return render(hast, {}, this.$slots, {}, h)
+    return render(hast, {}, this.$scopedSlots, {}, h)
   }
 }
 </script>

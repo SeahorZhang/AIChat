@@ -6,7 +6,23 @@
       </slot>
     </div>
     <div class="sc-bubble-content">
-      <MarkdownRenderer v-if="isMarkdown" :content="content" />
+      <MarkdownRenderer v-if="isMarkdown" :content="content">
+        <template #code="slotProps">
+          <div v-if="slotProps.language === 'think'">
+            <el-alert title="思考中..." type="info" :closable="false">
+              <MarkdownRenderer v-if="isMarkdown" :content="slotProps.content">
+                <template #code="slotProps">
+                  <div v-if="slotProps.language === 'citation'">
+                    <div style="color: red;">
+                      <MarkdownRenderer :content="slotProps.content" />
+                    </div>
+                  </div>
+                </template>
+              </MarkdownRenderer>
+            </el-alert>
+          </div>
+        </template>
+      </MarkdownRenderer>
       <div v-else>{{ content }}</div>
     </div>
   </div>
@@ -14,6 +30,8 @@
 
 <script>
 import MarkdownRenderer from './MarkdownRenderer/index.vue'
+
+
 export default {
   name: 'sc-bubble',
   components: {
@@ -32,6 +50,22 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+  computed: {
+    selfCodeXRender() {
+      // 渲染自定义代码块标识符 javascript, 返回一个组件
+      const h = this.$createElement;
+      return {
+        javascript: (props) => {
+          return h(
+            'pre',
+            { class: 'language-javascript' },
+            h('code', { class: 'language-javascript' }, props.raw.content)
+          );
+        }
+      }
+    }
+
   }
 }
 </script>
