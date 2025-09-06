@@ -14,6 +14,7 @@
         </template>
 
         <Thinking :content="thinkingContent" :loading="loading" />
+        <Citation :content="citationContent" :loading="loading" />
       </div>
       <div class="chat-button">
         <el-button round size="small" @click="showThinkingProcess">展示思考过程</el-button>
@@ -34,12 +35,14 @@ import ScBubble from './components/ScBubble.vue';
 import { nanoid } from 'nanoid/non-secure'
 import Sender from './components/Sender/index.vue';
 import Thinking from './components/Thinking.vue';
+import Citation from './components/Citation.vue';
 export default {
   name: 'App',
   components: {
     ScBubble,
     Sender,
-    Thinking
+    Thinking,
+    Citation
   },
   data() {
     return {
@@ -49,6 +52,16 @@ export default {
       loading: false,
       showThinking: false,
       thinkingContent: '我现在需要回答用户的问题：“json 来历”。首先，我应该明确用户想知道 JSON 的起源、发展历史以及相关的关键人物和事件。',
+      citationContent: [
+        {
+          text: '百度',
+          url: 'https://www.baidu.com'
+        },
+        {
+          text: '谷歌',
+          url: 'https://www.google.com'
+        },
+      ]
     }
   },
   computed: {
