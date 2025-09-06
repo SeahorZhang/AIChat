@@ -4,12 +4,12 @@
       <div class="chat-list" ref="chatListRef">
         <template v-for="item in chartList">
           <template v-for="chat in item">
-            <ScBubble v-if="chat.type === 'mine'" :key="chat.id" :content="chat.content" placement="end">
+            <Bubble v-if="chat.type === 'mine'" :key="chat.id" :content="chat.content" placement="end">
               <template #avatar>
                 <el-avatar>我</el-avatar>
               </template>
-            </ScBubble>
-            <ScBubble v-else :key="chat.id" is-markdown :content="chat.content" avatar="el-icon-user-solid" />
+            </Bubble>
+            <Bubble v-else :key="chat.id" is-markdown :content="chat.content" avatar="el-icon-user-solid" />
           </template>
         </template>
 
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import ScBubble from './components/ScBubble.vue';
+import Bubble from './components/Bubble.vue';
 import { nanoid } from 'nanoid/non-secure'
 import Sender from './components/Sender/index.vue';
 import Thinking from './components/Thinking.vue';
@@ -42,7 +42,7 @@ import { mockMarkdownStream } from './utils/mockMarkdownStream';
 export default {
   name: 'App',
   components: {
-    ScBubble,
+    Bubble,
     Sender,
     Thinking,
     Citation
