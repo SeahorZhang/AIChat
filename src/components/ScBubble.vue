@@ -10,10 +10,10 @@
     </div>
     <div class="sc-bubble-content">
       <MarkdownRenderer v-if="isMarkdown" :content="content">
-        <template #thinkCode="{ content }">
+        <template #think="{ content }">
           <ThinkCode :content="content" />
         </template>
-        <template #citationCode="{ content }">
+        <template #citation="{ content }">
           <CitationCode :content="content" />
         </template>
       </MarkdownRenderer>
