@@ -1,5 +1,8 @@
 <template>
-  <div class="sc-bubble" :class="{ 'sc-bubble-start': placement === 'start', 'sc-bubble-end': placement === 'end' }">
+  <div class="sc-bubble" :class="{
+    'sc-bubble-start': placement === 'start',
+    'sc-bubble-end': placement === 'end',
+  }">
     <div class="sc-bubble-avatar">
       <slot name="avatar">
         <el-avatar :size="40" icon="el-icon-user-solid"></el-avatar>
@@ -7,20 +10,11 @@
     </div>
     <div class="sc-bubble-content">
       <MarkdownRenderer v-if="isMarkdown" :content="content">
-        <template #code="slotProps">
-          <div v-if="slotProps.language === 'think'">
-            <el-alert title="思考中..." type="info" :closable="false">
-              <MarkdownRenderer v-if="isMarkdown" :content="slotProps.content">
-                <template #code="slotProps">
-                  <div v-if="slotProps.language === 'citation'">
-                    <div style="color: red;">
-                      <MarkdownRenderer :content="slotProps.content" />
-                    </div>
-                  </div>
-                </template>
-              </MarkdownRenderer>
-            </el-alert>
-          </div>
+        <template #thinkCode="{ content }">
+          <ThinkCode :content="content" />
+        </template>
+        <template #citationCode="{ content }">
+          <CitationCode :content="content" />
         </template>
       </MarkdownRenderer>
       <div v-else>{{ content }}</div>
@@ -29,45 +23,33 @@
 </template>
 
 <script>
-import MarkdownRenderer from './MarkdownRenderer/index.vue'
-
+import MarkdownRenderer from "./MarkdownRenderer/index.vue";
+import ThinkCode from './ThinkCode.vue'
+import CitationCode from './CitationCode.vue'
 
 export default {
-  name: 'sc-bubble',
+  name: "sc-bubble",
   components: {
-    MarkdownRenderer
+    MarkdownRenderer,
+    // 代码块类型组件
+    ThinkCode,
+    CitationCode
   },
   props: {
     content: {
       type: String,
-      default: ''
+      default: "",
     },
     placement: {
       type: String,
-      default: 'start'
+      default: "start",
     },
     isMarkdown: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  computed: {
-    selfCodeXRender() {
-      // 渲染自定义代码块标识符 javascript, 返回一个组件
-      const h = this.$createElement;
-      return {
-        javascript: (props) => {
-          return h(
-            'pre',
-            { class: 'language-javascript' },
-            h('code', { class: 'language-javascript' }, props.raw.content)
-          );
-        }
-      }
-    }
-
-  }
-}
+};
 </script>
 
 <style lang="less" scoped>

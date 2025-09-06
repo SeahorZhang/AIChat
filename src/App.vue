@@ -91,12 +91,15 @@ export default {
 我正在思考如何实现这个功能。
 - 首先，我需要一个气泡组件。
 - 然后，我需要解析Markdown。
-\`\`\`citation
-[百度](<https://www.example.com>)
-[Google](<https://www.google.com>)
-[GitHub](<https://www.github.com>)
-\`\`\`
 - 最后，我需要渲染内容。
+
+  \`\`\`citation
+    [百度](<https://www.example.com>)
+    [Google](<https://www.google.com>)
+    [GitHub](<https://www.github.com>)
+  \`\`\`
+
+思考完毕
 \`\`\`
 
 \`\`\`javascript
