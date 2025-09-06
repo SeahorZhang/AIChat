@@ -1,7 +1,16 @@
 <template>
   <div class="thinking">
     <div class="title" @click="isExpanded = !isExpanded">
-      <div class="title-text">思考中...</div>
+      <div class="title-text">
+        <template v-if="loading">
+          <i class="el-icon-loading"></i>
+          思考中...
+        </template>
+        <template v-else>
+          <i class="el-icon-success"></i>
+          思考完成
+        </template>
+      </div>
       <i class="el-icon-arrow-up title-icon" :class="{ 'expanded': isExpanded }"></i>
     </div>
     <Transition @enter="enter" :css="false" @leave="leave">
@@ -22,6 +31,10 @@ export default {
       type: String,
       default: "",
     },
+    loading: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -64,6 +77,10 @@ export default {
     color: #000000d9;
     cursor: pointer;
     user-select: none;
+
+    .el-icon-success{
+      color: #52c41a;
+    }
 
     .title-text {
       font-size: 14px;

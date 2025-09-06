@@ -13,7 +13,7 @@
           </template>
         </template>
 
-        <Thinking  :content="thinkingContent" />
+        <Thinking :content="thinkingContent" :loading="loading" />
       </div>
       <div class="chat-button">
         <el-button round size="small" @click="showThinkingProcess">展示思考过程</el-button>
