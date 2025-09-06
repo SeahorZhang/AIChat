@@ -18,7 +18,7 @@
       </div>
       <div class="chat-button">
         <el-button round size="small" @click="showThinkingProcess">展示思考过程</el-button>
-        <el-button round size="small">写一段代码</el-button>
+        <!-- <el-button round size="small" @click="startStream">模拟流式返回</el-button> -->
       </div>
       <Sender class="chat-content" @submit="onSubmit" @cancel="onCancel" :loading="loading">
         <template #prefix>
@@ -36,6 +36,9 @@ import { nanoid } from 'nanoid/non-secure'
 import Sender from './components/Sender/index.vue';
 import Thinking from './components/Thinking.vue';
 import Citation from './components/Citation.vue';
+import { mockMarkdownStream } from './utils/mockMarkdownStream';
+
+
 export default {
   name: 'App',
   components: {
@@ -50,17 +53,10 @@ export default {
       chartList: [],
       isDeep: false,
       loading: false,
-      showThinking: false,
       thinkingContent: '我现在需要回答用户的问题：“json 来历”。首先，我应该明确用户想知道 JSON 的起源、发展历史以及相关的关键人物和事件。',
       citationContent: [
-        {
-          text: '百度',
-          url: 'https://www.baidu.com'
-        },
-        {
-          text: '谷歌',
-          url: 'https://www.google.com'
-        },
+        { text: '百度', url: 'https://www.baidu.com' },
+        { text: '谷歌', url: 'https://www.google.com' },
       ]
     }
   },
@@ -68,7 +64,6 @@ export default {
     lastChat() {
       return this.chartList.at(-1) || []
     },
-
   },
   methods: {
     scrollToBottom() {
@@ -96,21 +91,10 @@ export default {
       this.chartList.at(-1).push({
         id: nanoid(),
         type: 'other',
-        content: `# Markdown示例
-这是一个支持**Markdown**渲染的气泡组件。
-
-## 功能特点
-- 支持标题
-- 支持**粗体**和*斜体*
-- 支持代码块
-
-\`\`\`javascript
-// 示例代码
-function greet(name) {
-    return 'Hello, ' + name + '!';
-}
-console.log(greet('World'));
-\`\`\``,
+        content: ''
+      })
+      mockMarkdownStream((ch) => {
+        this.chartList.at(-1).at(-1).content += ch
       })
     }
   }
