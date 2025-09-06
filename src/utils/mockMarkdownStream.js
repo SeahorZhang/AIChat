@@ -1,13 +1,13 @@
 // 模拟后端流式返回 Markdown 内容（示例）
 export function mockMarkdownStream(callback) {
   const fullText = `
-<tarnk>
+<taink>
 用户问 “你能干什么”，需要全面且有条理地介绍自己的能力，同时让用户容易理解。
 <citation>
 - [Vue源码](https://github.com/vuejs/vue)
 - [JavaScript官网](https://www.javascript.com/)
 </citation>
-</tarnk>
+</taink>
 
 # 一、知识问答与信息解读
 ## 1. 多领域知识问答
