@@ -16,9 +16,9 @@ export function mockMarkdownStream(callback) {
   - **实时信息**：提供最新新闻、天气、股市行情等动态信息。
   `;
 
-  {
+  // {
     /* <img src="https://avatars.githubusercontent.com/u/76239030?v=4" alt="" />   */
-  }
+  // }
   // const fullText = `
   // <think>
   // 用户问 “你能干什么”

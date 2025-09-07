@@ -10,9 +10,9 @@
         <template #think="{ rawContent }">
           <Thinking :content="rawContent" />
         </template>
-        <!-- <template #citation="{ rawContent }">
+        <template #citation="{ rawContent }">
           <Citation :content="rawContent" />
-        </template> -->
+        </template>
       </MarkdownRenderer>
       <div v-else>{{ content }}</div>
     </div>
@@ -22,13 +22,13 @@
 <script>
 import MarkdownRenderer from './MarkdownRenderer/index.vue'
 import Thinking from './Thinking.vue'
-// import Citation from './Citation.vue'
+import Citation from './Citation.vue'
 export default {
   name: 'sc-bubble',
   components: {
     MarkdownRenderer,
     Thinking,
-    // Citation
+    Citation
   },
   props: {
     content: {
