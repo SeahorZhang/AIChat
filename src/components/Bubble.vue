@@ -6,18 +6,27 @@
       </slot>
     </div>
     <div class="sc-bubble-content">
-      <MarkdownCard v-if="isMarkdown" :content="content" />
+      <MarkdownRenderer v-if="isMarkdown" :content="content">
+
+        <template #think="a">
+          {{ a }}
+          <Thinking :content="2" />
+        </template>
+      </MarkdownRenderer>
+
       <div v-else>{{ content }}</div>
     </div>
   </div>
 </template>
 
 <script>
-import MarkdownCard from './markdownCard/index.vue'
+import MarkdownRenderer from './MarkdownRenderer/index.vue'
+import Thinking from './Thinking.vue'
 export default {
   name: 'sc-bubble',
   components: {
-    MarkdownCard
+    MarkdownRenderer,
+    Thinking
   },
   props: {
     content: {

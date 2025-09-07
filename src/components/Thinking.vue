@@ -28,7 +28,7 @@ export default {
   },
   props: {
     content: {
-      type: String,
+      type: [String, Number],
       default: "",
     },
     loading: {
@@ -78,7 +78,7 @@ export default {
     cursor: pointer;
     user-select: none;
 
-    .el-icon-success{
+    .el-icon-success {
       color: #52c41a;
     }
 
