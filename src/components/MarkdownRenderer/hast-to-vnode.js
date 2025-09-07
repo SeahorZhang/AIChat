@@ -1,5 +1,21 @@
 import { find, html, svg } from "property-information";
 
+// 提取节点中的内容，保留HTML标签
+function extractTextContent(nodes) {
+  if (!nodes || !Array.isArray(nodes)) return '';
+  
+  return nodes.map(node => {
+    if (node.type === 'text') {
+      return node.value;
+    } else if (node.type === 'element') {
+      const tagName = node.tagName;
+      const children = node.children ? extractTextContent(node.children) : '';
+      return `<${tagName}>${children}</${tagName}>`;
+    }
+    return '';
+  }).join('');
+}
+
 export function render(hast, slots, customAttrs, h) {
   return h(
     "div",
@@ -43,7 +59,8 @@ export function renderChildren(nodeList, ctx, parent, slots, customAttrs, h) {
         );
         for (let i = aliasList.length - 1; i >= 0; i--) {
           const targetSlot = slots[aliasList[i]];
-        if (typeof targetSlot === "function") {
+          if (typeof targetSlot === "function") {
+            const rawContent = extractTextContent(node.children);
             return targetSlot({
               ...vnodeProps,
               ...attrs,
@@ -56,6 +73,8 @@ export function renderChildren(nodeList, ctx, parent, slots, customAttrs, h) {
                   customAttrs,
                   h
                 ),
+              // 添加原始文本内容
+              rawContent: rawContent,
             });
           }
         }

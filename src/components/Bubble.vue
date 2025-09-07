@@ -7,14 +7,13 @@
     </div>
     <div class="sc-bubble-content markdown-body">
       <MarkdownRenderer v-if="isMarkdown" :content="content">
-        <template #think="{ ...props }">
-          <Thinking :content="props.children ? props.children() : []" />
+        <template #think="{ rawContent }">
+          <Thinking :content="rawContent" />
         </template>
-        <template #citation="{ ...props }">
-          <Citation :content="props.children ? props.children() : []" />
-        </template>
+        <!-- <template #citation="{ rawContent }">
+          <Citation :content="rawContent" />
+        </template> -->
       </MarkdownRenderer>
-
       <div v-else>{{ content }}</div>
     </div>
   </div>
@@ -23,13 +22,13 @@
 <script>
 import MarkdownRenderer from './MarkdownRenderer/index.vue'
 import Thinking from './Thinking.vue'
-import Citation from './Citation.vue'
+// import Citation from './Citation.vue'
 export default {
   name: 'sc-bubble',
   components: {
     MarkdownRenderer,
     Thinking,
-    Citation
+    // Citation
   },
   props: {
     content: {
@@ -46,10 +45,6 @@ export default {
     }
   },
   methods: {
-    aaa(props) {
-      console.log(11, props)
-      console.log(22, props.children())
-    }
   }
 }
 </script>

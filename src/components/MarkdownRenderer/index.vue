@@ -6,6 +6,7 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
+import rehypeParse from 'rehype-parse';
 import { render } from './hast-to-vnode';
 
 export default {
@@ -17,30 +18,37 @@ export default {
     },
   },
   render(h) {
-    const processor = unified()
-      .use([
-        remarkParse,// 解析Markdown语法
-        remarkBreaks,// 支持换行
-        [
-          remarkGfm,// 支持GitHub风格的Markdown
-          { singleTilde: false }// 关闭单个波浪线表示删除线
-        ],
-      ])
-      .use(
-        remarkRehype,// 转换为HAST
-        { allowDangerousHtml: true }// 允许原始HTML
-      )
-      .use(rehypeRaw)// 允许HAST中包含原始HTML
-      .use(rehypeSanitize, {
-        ...defaultSchema,
-        //不过滤think标签
-        tagNames: ['think', 'citation', ...defaultSchema.tagNames]
-      })// 清理HAST，防止XSS攻击
+    // 检查是否包含自定义标签
+    const hasCustomTags = /<(think|citation)>/i.test(this.content);
 
-    const mdast = processor.parse(this.content); // 解析为MDAST
-    console.log(11, mdast);
-    const hast = processor.runSync(mdast);// 转换为HAST
-    console.log(22, hast);
+    let hast;
+    if (hasCustomTags) {
+      // 如果包含自定义标签，直接解析为 HTML，不进行 sanitize
+      const processor = unified()
+        .use(rehypeParse, {
+          fragment: true,
+          emitParseErrors: false,
+          duplicateAttribute: false
+        });
+
+      hast = processor.runSync(processor.parse(this.content));
+    } else {
+      // 否则使用 markdown 解析
+      const processor = unified()
+        .use(remarkParse)
+        .use(remarkBreaks)
+        .use(remarkGfm, { singleTilde: false })
+        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeRaw)
+        .use(rehypeSanitize, {
+          ...defaultSchema,
+          tagNames: ['think', 'citation', ...defaultSchema.tagNames],
+        });
+
+      const mdast = processor.parse(this.content);
+      hast = processor.runSync(mdast);
+    }
+
     return render(hast, this.$scopedSlots, {}, h)
   }
 }

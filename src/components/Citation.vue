@@ -4,8 +4,10 @@
       <i v-if="loading" class="el-icon-loading"></i>
       引用来源
     </template>
-    <div v-for="(item, index) in content" :key="index">
-      <MarkdownRenderer :content="item" />
+    <div v-for="(item, index) in (typeof content === 'string' ? [content] : content)" :key="index">
+      <div style="color:red">
+        <MarkdownRenderer :content="item" />
+      </div>
     </div>
   </Expand>
 </template>
@@ -21,7 +23,7 @@ export default {
   },
   props: {
     content: {
-      type: Array,
+      type: [String, Array],
       default: () => [],
     },
     loading: {

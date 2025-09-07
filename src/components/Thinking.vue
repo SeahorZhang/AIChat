@@ -11,25 +11,30 @@
       </div>
     </template>
 
-    <template v-for="(item, index) in content">
-      <div :key="index">{{ item }}</div>
-      <!-- <MarkdownRenderer :content="item" :key="index" /> -->
-    </template>
+    <div v-for="(item, index) in (typeof content === 'string' ? [content] : content)" :key="index">
+      <MarkdownRenderer :content="item">
+        <template #citation="{ rawContent }">
+          <Citation :content="rawContent" />
+        </template>
+      </MarkdownRenderer>
+    </div>
   </Expand>
 </template>
 
 <script>
-// import MarkdownRenderer from './MarkdownRenderer/index.vue'
+import MarkdownRenderer from './MarkdownRenderer/index.vue'
+import Citation from './Citation.vue'
 import Expand from './Expand.vue'
 export default {
   name: "Thinking",
   components: {
-    // MarkdownRenderer,
+    MarkdownRenderer,
+    Citation,
     Expand
   },
   props: {
     content: {
-      type: Array,
+      type: [String, Array],
       default: () => [],
     },
     loading: {
