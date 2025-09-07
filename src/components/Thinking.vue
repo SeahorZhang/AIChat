@@ -1,5 +1,6 @@
 <template>
   <div class="thinking">
+    {{ content }}
     <div class="title" @click="isExpanded = !isExpanded">
       <div class="title-text">
         <template v-if="loading">
@@ -14,22 +15,27 @@
       <i class="el-icon-arrow-up title-icon" :class="{ 'expanded': isExpanded }"></i>
     </div>
     <Transition @enter="enter" :css="false" @leave="leave">
+
       <div class="content" v-show="isExpanded">
-        {{ content }}
+        <template v-for="(item, index) in content">
+          <MarkdownRenderer :content="item" :key="index" />
+        </template>
       </div>
     </Transition>
   </div>
 </template>
 
 <script>
+import MarkdownRenderer from './MarkdownRenderer/index.vue'
 export default {
   name: "Thinking",
   components: {
+    MarkdownRenderer
   },
   props: {
     content: {
-      type: [String, Number],
-      default: "",
+      type: Array,
+      default: () => [],
     },
     loading: {
       type: Boolean,
@@ -38,7 +44,7 @@ export default {
   },
   data() {
     return {
-      isExpanded: false,
+      isExpanded: true,
     }
   },
   methods: {

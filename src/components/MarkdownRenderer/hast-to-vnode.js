@@ -18,6 +18,7 @@ export function render(hast, slots, customAttrs, h) {
 export function renderChildren(nodeList, ctx, parent, slots, customAttrs, h) {
   const keyCounter = {};
   return nodeList.map((node) => {
+    // console.log(11, node);
     switch (node.type) {
       case "text":
         return node.value;
@@ -42,7 +43,6 @@ export function renderChildren(nodeList, ctx, parent, slots, customAttrs, h) {
         );
         for (let i = aliasList.length - 1; i >= 0; i--) {
           const targetSlot = slots[aliasList[i]];
-        console.log(111, node);
         if (typeof targetSlot === "function") {
             return targetSlot({
               ...vnodeProps,

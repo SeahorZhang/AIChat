@@ -28,7 +28,8 @@ export function mockMarkdownStream(callback) {
 const fullText = `
 
 <think>
-用户问 “你能干什么”
+用户问 “你能干什么”,我能回答你的问题
+# 一、知识问答与信息解读
 </think>
  `
 

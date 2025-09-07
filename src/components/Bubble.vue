@@ -8,9 +8,8 @@
     <div class="sc-bubble-content">
       <MarkdownRenderer v-if="isMarkdown" :content="content">
 
-        <template #think="a">
-          {{ a }}
-          <Thinking :content="2" />
+        <template #think="{...props}">
+          <Thinking :content="props.children ? props.children() : []" />
         </template>
       </MarkdownRenderer>
 
@@ -40,6 +39,12 @@ export default {
     isMarkdown: {
       type: Boolean,
       default: false
+    }
+  },
+  methods: {
+    aaa(props) {
+      console.log(11,props)
+      console.log(22,props.children())
     }
   }
 }

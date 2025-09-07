@@ -13,7 +13,7 @@
           </template>
         </template>
 
-        <Thinking :content="thinkingContent" :loading="loading" />
+        <!-- <Thinking :content="thinkingContent" :loading="loading" /> -->
         <Citation :content="citationContent" :loading="loading" />
       </div>
       <div class="chat-button">
@@ -34,7 +34,7 @@
 import Bubble from './components/Bubble.vue';
 import { nanoid } from 'nanoid/non-secure'
 import Sender from './components/Sender/index.vue';
-import Thinking from './components/Thinking.vue';
+// import Thinking from './components/Thinking.vue';
 import Citation from './components/Citation.vue';
 import { mockMarkdownStream } from './utils/mockMarkdownStream';
 
@@ -44,7 +44,7 @@ export default {
   components: {
     Bubble,
     Sender,
-    Thinking,
+    // Thinking,
     Citation
   },
   data() {

@@ -37,7 +37,9 @@ export default {
       })// 清理HAST，防止XSS攻击
 
     const mdast = processor.parse(this.content); // 解析为MDAST
+    console.log(11, mdast);
     const hast = processor.runSync(mdast);// 转换为HAST
+    console.log(22, hast);
     return render(hast,  this.$scopedSlots, {}, h)
   }
 }
