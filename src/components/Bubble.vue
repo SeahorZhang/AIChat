@@ -5,11 +5,13 @@
         <el-avatar :size="40" icon="el-icon-user-solid"></el-avatar>
       </slot>
     </div>
-    <div class="sc-bubble-content">
+    <div class="sc-bubble-content markdown-body">
       <MarkdownRenderer v-if="isMarkdown" :content="content">
-
-        <template #think="{...props}">
+        <template #think="{ ...props }">
           <Thinking :content="props.children ? props.children() : []" />
+        </template>
+        <template #citation="{ ...props }">
+          <Citation :content="props.children ? props.children() : []" />
         </template>
       </MarkdownRenderer>
 
@@ -21,11 +23,13 @@
 <script>
 import MarkdownRenderer from './MarkdownRenderer/index.vue'
 import Thinking from './Thinking.vue'
+import Citation from './Citation.vue'
 export default {
   name: 'sc-bubble',
   components: {
     MarkdownRenderer,
-    Thinking
+    Thinking,
+    Citation
   },
   props: {
     content: {
@@ -43,8 +47,8 @@ export default {
   },
   methods: {
     aaa(props) {
-      console.log(11,props)
-      console.log(22,props.children())
+      console.log(11, props)
+      console.log(22, props.children())
     }
   }
 }

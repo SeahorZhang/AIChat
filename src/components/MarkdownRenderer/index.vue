@@ -2,7 +2,7 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
-import rehypeSanitize from 'rehype-sanitize'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
@@ -31,16 +31,17 @@ export default {
         { allowDangerousHtml: true }// 允许原始HTML
       )
       .use(rehypeRaw)// 允许HAST中包含原始HTML
-      .use(rehypeSanitize,{
-        //不过滤taink标签
-        tagNames: ['think']
+      .use(rehypeSanitize, {
+        ...defaultSchema,
+        //不过滤think标签
+        tagNames: ['think', 'citation', ...defaultSchema.tagNames]
       })// 清理HAST，防止XSS攻击
 
     const mdast = processor.parse(this.content); // 解析为MDAST
     console.log(11, mdast);
     const hast = processor.runSync(mdast);// 转换为HAST
     console.log(22, hast);
-    return render(hast,  this.$scopedSlots, {}, h)
+    return render(hast, this.$scopedSlots, {}, h)
   }
 }
 </script>

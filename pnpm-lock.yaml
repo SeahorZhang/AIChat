@@ -17,6 +17,9 @@ importers:
       element-ui:
         specifier: ^2.15.14
         version: 2.15.14(vue@2.7.16)
+      github-markdown-css:
+        specifier: ^5.8.1
+        version: 5.8.1
       less:
         specifier: ^4.4.1
         version: 4.4.1
@@ -2089,6 +2092,10 @@ packages:
 
   get-stream@6.0.1:
     resolution: {integrity: sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg==}
+    engines: {node: '>=10'}
+
+  github-markdown-css@5.8.1:
+    resolution: {integrity: sha512-8G+PFvqigBQSWLQjyzgpa2ThD9bo7+kDsriUIidGcRhXgmcaAWUIpCZf8DavJgc+xifjbCG+GvMyWr0XMXmc7g==}
     engines: {node: '>=10'}
 
   glob-parent@5.1.2:
@@ -6365,6 +6372,8 @@ snapshots:
       pump: 3.0.3
 
   get-stream@6.0.1: {}
+
+  github-markdown-css@5.8.1: {}
 
   glob-parent@5.1.2:
     dependencies:

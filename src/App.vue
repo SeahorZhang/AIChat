@@ -14,7 +14,7 @@
         </template>
 
         <!-- <Thinking :content="thinkingContent" :loading="loading" /> -->
-        <Citation :content="citationContent" :loading="loading" />
+        <!-- <Citation :content="citationContent" :loading="loading" /> -->
       </div>
       <div class="chat-button">
         <el-button round size="small" @click="showThinkingProcess">展示思考过程</el-button>
@@ -35,7 +35,7 @@ import Bubble from './components/Bubble.vue';
 import { nanoid } from 'nanoid/non-secure'
 import Sender from './components/Sender/index.vue';
 // import Thinking from './components/Thinking.vue';
-import Citation from './components/Citation.vue';
+// import Citation from './components/Citation.vue';
 import { mockMarkdownStream } from './utils/mockMarkdownStream';
 
 
@@ -45,7 +45,7 @@ export default {
     Bubble,
     Sender,
     // Thinking,
-    Citation
+    // Citation
   },
   data() {
     return {
