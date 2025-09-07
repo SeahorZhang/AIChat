@@ -3,7 +3,7 @@ export function mockMarkdownStream(callback) {
     const fullText = `
   <think>
   用户问 “你能干什么”
-  <citation>
+  <citation>2233333
   - [Vue源码](https://github.com/vuejs/vue)
   - [JavaScript官网](https://www.javascript.com/)
   </citation>
