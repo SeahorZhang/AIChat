@@ -22,22 +22,26 @@ export default {
   },
   methods: {
     enter(el, done) {
-      done();
       el.style.height = 'auto';
       const h = el.offsetHeight;
       el.style.height = 0;
       el.clientHeight
       el.style.transition = 'height 0.3s';
       el.style.height = `${h}px`;
+      setTimeout(() => {
+        el.style.height = `auto`;
+        done();
+      }, 300);
     },
     leave(el, done) {
       const h = el.offsetHeight;
-      done();
       el.style.height = `${h}px`;
-      el.style.display = 'block';
       el.style.transition = 'height 0.3s';
       el.clientHeight
       el.style.height = 0;
+      setTimeout(() => {
+        done();
+      }, 300);
     }
   }
 };

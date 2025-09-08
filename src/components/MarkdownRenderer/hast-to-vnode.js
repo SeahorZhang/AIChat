@@ -1,228 +1,114 @@
-import { find, html, svg } from "property-information";
+import { find, html } from "property-information";
 
-// 提取节点中的内容，保留HTML标签
-function extractTextContent(nodes) {
-  if (!nodes || !Array.isArray(nodes)) return '';
-  
-  return nodes.map(node => {
-    if (node.type === 'text') {
-      return node.value;
-    } else if (node.type === 'element') {
-      const tagName = node.tagName;
-      const children = node.children ? extractTextContent(node.children) : '';
-      return `<${tagName}>${children}</${tagName}>`;
-    }
-    return '';
-  }).join('');
+// 提取节点内容，保留 HTML 标签
+function extractTextContent(nodes = []) {
+  return nodes
+    .map((node) => {
+      if (node.type === "text") return node.value;
+      if (node.type === "element") {
+        const children = extractTextContent(node.children);
+        return `<${node.tagName}>${children}</${node.tagName}>`;
+      }
+      return "";
+    })
+    .join("");
 }
 
-export function render(hast, slots, customAttrs, h) {
-  return h(
-    "div",
-    {},
-    renderChildren(
-      hast.children,
-      { listDepth: -1, listOrdered: false, listItemIndex: -1, svg: false },
-      hast,
-      slots ?? {},
-      customAttrs || {},
-      h
-    )
-  );
-}
-
-export function renderChildren(nodeList, ctx, parent, slots, customAttrs, h) {
+// 渲染 HAST 为 VNode
+export function render(hast, slots = {}, customAttrs = {}, h) {
   const keyCounter = {};
+  const vnodes = renderChildren(hast.children || [], slots, customAttrs, h, keyCounter);
+  return h("div", {}, vnodes);
+}
+
+// 遍历子节点
+export function renderChildren(nodeList = [], slots, customAttrs, h, keyCounter) {
   return nodeList.map((node) => {
-    // console.log(11, node);
     switch (node.type) {
       case "text":
-        return node.value;
       case "raw":
         return node.value;
+
       case "root":
-        return renderChildren(
-          node.children,
-          ctx,
-          parent,
-          slots,
-          customAttrs,
-          h
-        );
+        return renderChildren(node.children || [], slots, customAttrs, h, keyCounter);
+
       case "element": {
-        const { attrs, context, aliasList, vnodeProps } = getVNodeInfos(
-          node,
-          parent,
-          ctx,
-          keyCounter,
-          customAttrs
-        );
+        const { attrs, aliasList, vnodeProps } = getVNodeInfos(node, keyCounter, customAttrs);
+
+        // 插槽渲染
         for (let i = aliasList.length - 1; i >= 0; i--) {
           const targetSlot = slots[aliasList[i]];
           if (typeof targetSlot === "function") {
-            const rawContent = extractTextContent(node.children);
             return targetSlot({
               ...vnodeProps,
               ...attrs,
-              children: () =>
-                renderChildren(
-                  node.children,
-                  context,
-                  node,
-                  slots,
-                  customAttrs,
-                  h
-                ),
-              // 添加原始文本内容
-              rawContent: rawContent,
+              children: () => renderChildren(node.children || [], slots, customAttrs, h, keyCounter),
+              rawContent: extractTextContent(node.children),
             });
           }
         }
 
+        // 普通节点渲染
         return h(
           node.tagName,
           attrs,
-          renderChildren(node.children, context, node, slots, customAttrs, h)
+          renderChildren(node.children || [], slots, customAttrs, h, keyCounter)
         );
       }
+
       default:
         return null;
     }
   });
 }
 
-export function getVNodeInfos(node, parent, context, keyCounter, customAttrs) {
+// 获取节点 VNode 信息
+export function getVNodeInfos(node, keyCounter, customAttrs) {
   const aliasList = [];
-
-  let attrs = {};
   const vnodeProps = {};
-  const ctx = { ...context };
+  let attrs = {};
 
   if (node.type === "element") {
     aliasList.push(node.tagName);
-    keyCounter[node.tagName] =
-      node.tagName in keyCounter ? keyCounter[node.tagName] + 1 : 0;
+
+    // key
+    keyCounter[node.tagName] = (keyCounter[node.tagName] || 0) + 1;
     vnodeProps.key = `${node.tagName}-${keyCounter[node.tagName]}`;
+
     node.properties = node.properties || {};
-
-    if (node.tagName === "svg") {
-      ctx.svg = true;
-    }
-
-    attrs = Object.entries(node.properties).reduce((acc, [hastKey, value]) => {
-      const attrInfo = find(ctx.svg ? svg : html, hastKey);
-      acc[attrInfo.attribute] = value;
-
-      return acc;
-    }, {});
-
-    switch (node.tagName) {
-      case "h1":
-      case "h2":
-      case "h3":
-      case "h4":
-      case "h5":
-      case "h6":
-        vnodeProps.level = Number.parseFloat(node.tagName.slice(1));
-        aliasList.push("heading");
-        break;
-      // TODO: maybe use <pre> instead for customizing from <pre> not <code> ?
-      case "code":
-        vnodeProps.languageOriginal = Array.isArray(attrs.class)
-          ? attrs.class.find((cls) => cls.startsWith("language-"))
-          : "";
-        vnodeProps.language = vnodeProps.languageOriginal
-          ? vnodeProps.languageOriginal.replace("language-", "")
-          : "";
-        vnodeProps.inline = "tagName" in parent && parent.tagName !== "pre";
-
-        // when tagName is code, it definitely has children and the first child is text
-        // https://github.com/syntax-tree/mdast-util-to-hast/blob/main/lib/handlers/code.js
-        vnodeProps.content = node.children[0]?.value ?? "";
-
-        aliasList.push(vnodeProps.inline ? "inline-code" : "block-code");
-        break;
-      case "thead":
-      case "tbody":
-        ctx.currentContext = node.tagName;
-        break;
-      case "td":
-      case "th":
-      case "tr":
-        vnodeProps.isHead = context.currentContext === "thead";
-        break;
-
-      case "ul":
-      case "ol":
-        ctx.listDepth = context.listDepth + 1;
-        ctx.listOrdered = node.tagName === "ol";
-        ctx.listItemIndex = -1;
-        vnodeProps.ordered = ctx.listOrdered;
-        vnodeProps.depth = ctx.listDepth;
-
-        aliasList.push("list");
-        break;
-
-      case "li":
-        ctx.listItemIndex++;
-
-        vnodeProps.ordered = ctx.listOrdered;
-        vnodeProps.depth = ctx.listDepth;
-        vnodeProps.index = ctx.listItemIndex;
-        aliasList.push("list-item");
-
-        break;
-      case "slot":
-        if (typeof node.properties["slot-name"] === "string") {
-          aliasList.push(`${node.properties["slot-name"]}`);
-          delete node.properties["slot-name"];
-        }
-        break;
-      default:
-        break;
-    }
-
-    attrs = computeAttrs(
-      node,
-      aliasList,
-      vnodeProps,
-      { ...attrs }, // TODO: fix this
-      customAttrs
+    attrs = Object.fromEntries(
+      Object.entries(node.properties).map(([k, v]) => {
+        const attrInfo = find(html, k);
+        return [attrInfo.attribute, v];
+      })
     );
+
+    // slot 支持
+    if (node.tagName === "slot" && typeof node.properties["slot-name"] === "string") {
+      aliasList.push(node.properties["slot-name"]);
+      delete node.properties["slot-name"];
+    }
+
+    // 应用自定义 attrs
+    attrs = computeAttrs(node, aliasList, vnodeProps, attrs, customAttrs);
   }
 
-  return {
-    attrs,
-    context: ctx,
-    aliasList,
-    vnodeProps,
-  };
+  return { attrs, aliasList, vnodeProps };
 }
 
-/**
- * TODO:
- * @param node - hast node
- * @param aliasList - html tag list. The earlier alias has higher priority. ?
- * @param attrs - attrs
- * @param customAttrs - custom attrs object
- * @returns attrs
- */
+// 合并自定义属性
 function computeAttrs(node, aliasList, vnodeProps, attrs, customAttrs) {
-  const result = {
-    ...attrs,
-  };
   for (let i = aliasList.length - 1; i >= 0; i--) {
     const name = aliasList[i];
-    // console.log(Object.keys(customAttrs))
     if (name in customAttrs) {
       const customAttr = customAttrs[name];
       return {
-        ...result,
+        ...attrs,
         ...(typeof customAttr === "function"
           ? customAttr(node, { ...attrs, ...vnodeProps })
           : customAttr),
       };
     }
   }
-  return result;
+  return attrs;
 }

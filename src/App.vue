@@ -4,21 +4,19 @@
       <div class="chat-list" ref="chatListRef">
         <template v-for="item in chartList">
           <template v-for="chat in item">
-            <Bubble v-if="chat.type === 'mine'" :key="chat.id" :content="chat.content" placement="end">
+            <Bubble v-if="chat.type === 'mine'" :key="chat.id" :content="chat.content" placement="end" />
+
+            <Bubble v-else :key="chat.id" is-markdown :content="chat.content" avatar="el-icon-user-solid">
               <template #avatar>
-                <el-avatar>我</el-avatar>
+                <el-avatar :size="40" icon="el-icon-user-solid"></el-avatar>
               </template>
             </Bubble>
-            <Bubble v-else :key="chat.id" is-markdown :content="chat.content" avatar="el-icon-user-solid" />
           </template>
         </template>
 
-        <!-- <Thinking :content="thinkingContent" :loading="loading" /> -->
-        <!-- <Citation :content="citationContent" :loading="loading" /> -->
       </div>
       <div class="chat-button">
         <el-button round size="small" @click="showThinkingProcess">展示思考过程</el-button>
-        <!-- <el-button round size="small" @click="startStream">模拟流式返回</el-button> -->
       </div>
       <Sender class="chat-content" @submit="onSubmit" @cancel="onCancel" :loading="loading">
         <template #prefix>
@@ -34,8 +32,6 @@
 import Bubble from './components/Bubble.vue';
 import { nanoid } from 'nanoid/non-secure'
 import Sender from './components/Sender/index.vue';
-// import Thinking from './components/Thinking.vue';
-// import Citation from './components/Citation.vue';
 import { mockMarkdownStream } from './utils/mockMarkdownStream';
 
 
@@ -44,8 +40,6 @@ export default {
   components: {
     Bubble,
     Sender,
-    // Thinking,
-    // Citation
   },
   data() {
     return {

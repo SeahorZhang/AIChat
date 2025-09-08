@@ -1,11 +1,10 @@
 <template>
-  <div class="sc-bubble" :class="{ 'sc-bubble-start': placement === 'start', 'sc-bubble-end': placement === 'end' }">
-    <div class="sc-bubble-avatar">
+  <div class="bubble" :class="{ 'bubble-start': placement === 'start', 'bubble-end': placement === 'end' }">
+    <div class="bubble-avatar" v-if="$slots.avatar">
       <slot name="avatar">
-        <el-avatar :size="40" icon="el-icon-user-solid"></el-avatar>
       </slot>
     </div>
-    <div class="sc-bubble-content markdown-body">
+    <div class="bubble-content">
       <MarkdownRenderer v-if="isMarkdown" :content="content">
         <template #think="{ rawContent }">
           <Thinking :content="rawContent" />
@@ -24,7 +23,7 @@ import MarkdownRenderer from './MarkdownRenderer/index.vue'
 import Thinking from './Thinking.vue'
 import Citation from './Citation.vue'
 export default {
-  name: 'sc-bubble',
+  name: 'bubble',
   components: {
     MarkdownRenderer,
     Thinking,
@@ -50,7 +49,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.sc-bubble {
+.bubble {
   display: flex;
   gap: 12px;
 
@@ -61,6 +60,7 @@ export default {
   &-end {
     flex-direction: row-reverse;
     justify-content: end;
+    padding-left: 52px;
   }
 
   &-content {

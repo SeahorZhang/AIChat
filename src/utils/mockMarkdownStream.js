@@ -1,11 +1,19 @@
 // 模拟后端流式返回 Markdown 内容（示例）
 export function mockMarkdownStream(callback) {
-    const fullText = `
+  const fullText = `
   <think>
   用户问 “你能干什么”
   <citation>2233333
   - [Vue源码](https://github.com/vuejs/vue)
   - [JavaScript官网](https://www.javascript.com/)
+
+   <think>
+  用户问 “你能干什么”
+  <citation>2233333
+  - [Vue源码](https://github.com/vuejs/vue)
+  - [JavaScript官网](https://www.javascript.com/)
+  </citation>
+  </think>
   </citation>
   </think>
 
@@ -16,37 +24,13 @@ export function mockMarkdownStream(callback) {
   - **实时信息**：提供最新新闻、天气、股市行情等动态信息。
   `;
 
-  // {
-    /* <img src="https://avatars.githubusercontent.com/u/76239030?v=4" alt="" />   */
-  // }
-  // const fullText = `
-  // <think>
-  // 用户问 “你能干什么”
-  // </think>
-  //  `
-  // const fullText = `
-  // <citation>
-  // - [Vue源码](https://github.com/vuejs/vue)
-  // - [JavaScript官网](https://www.javascript.com/)
-  // </citation>
-  //  `
-//   const fullText = `
-// <think>
-// 用户问 “你能干什么”
-// <citation>
-// - [Vue源码](https://github.com/vuejs/vue)
-// - [JavaScript官网](https://www.javascript.com/)
-// </citation>
-// </think>
-//  `;
-
   let i = 0;
   function push() {
     if (i < fullText.length) {
       // 检查是否遇到标签开始
-      if (fullText[i] === '<') {
+      if (fullText[i] === "<") {
         // 找到标签结束位置
-        let tagEnd = fullText.indexOf('>', i);
+        let tagEnd = fullText.indexOf(">", i);
         if (tagEnd !== -1) {
           // 整个标签一起返回
           const tag = fullText.substring(i, tagEnd + 1);
