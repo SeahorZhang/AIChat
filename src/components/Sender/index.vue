@@ -131,10 +131,18 @@ export default {
     }
   },
   beforeDestroy() {
-    // 释放实例
+    // 释放实例和事件监听器
     if (this.chat) {
-      this.chat.dispose()
-      this.chat = null
+      // 移除事件监听器
+      this.chat.removeEventListener('enterSend', this.onSubmit);
+      this.chat.removeEventListener('operate', () => {
+        this.chatState.isEmpty = this.chat.isEmpty(true);
+        this.$emit('change');
+      });
+      
+      // 释放实例
+      this.chat.dispose();
+      this.chat = null;
     }
   }
 }

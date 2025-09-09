@@ -2,7 +2,7 @@
   <div id="app">
     <div class="chat-container">
       <div class="chat-list" ref="chatListRef">
-        <template v-for="item in chartList">
+        <template v-for="item in chatList">
           <template v-for="chat in item">
             <Bubble v-if="chat.type === 'mine'" :key="chat.id" :content="chat.content" placement="end" />
 
@@ -44,19 +44,20 @@ export default {
   data() {
     return {
       // 第一项必为我的发问
-      chartList: [],
+      chatList: [],
       isDeep: false,
       loading: false,
-      thinkingContent: '我现在需要回答用户的问题：“json 来历”。首先，我应该明确用户想知道 JSON 的起源、发展历史以及相关的关键人物和事件。',
+      thinkingContent: '我现在需要回答用户的问题："json 来历"。首先，我应该明确用户想知道 JSON 的起源、发展历史以及相关的关键人物和事件。',
       citationContent: [
         { text: '百度', url: 'https://www.baidu.com' },
         { text: '谷歌', url: 'https://www.google.com' },
-      ]
+      ],
+      streamCancel: null // 流式输出取消函数
     }
   },
   computed: {
     lastChat() {
-      return this.chartList.at(-1) || []
+      return this.chatList.at(-1) || []
     },
   },
   methods: {
@@ -76,20 +77,47 @@ export default {
       this.loading = false
     },
     showThinkingProcess() {
-      this.chartList.push([{
+      // 取消之前的流式输出
+      if (this.streamCancel) {
+        this.streamCancel();
+      }
+
+      this.chatList.push([{
         id: nanoid(),
         type: 'mine',
         content: '对话中展示你的思考过程',
       }])
 
-      this.chartList.at(-1).push({
+      this.chatList.at(-1).push({
         id: nanoid(),
         type: 'other',
         content: ''
       })
-      mockMarkdownStream((ch) => {
-        this.chartList.at(-1).at(-1).content += ch
-      })
+
+      // 启动流式输出，支持取消和错误处理
+      this.streamCancel = mockMarkdownStream(
+        (ch) => {
+          this.chatList.at(-1).at(-1).content += ch
+        },
+        {
+          delay: 24,
+          onError: (error) => {
+            console.error('流式输出错误:', error);
+            this.loading = false;
+          },
+          onComplete: () => {
+            this.loading = false;
+            this.streamCancel = null;
+          }
+        }
+      );
+    }
+  },
+  beforeDestroy() {
+    // 清理流式输出
+    if (this.streamCancel) {
+      this.streamCancel();
+      this.streamCancel = null;
     }
   }
 }

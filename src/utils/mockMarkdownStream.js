@@ -1,14 +1,20 @@
 // 模拟后端流式返回 Markdown 内容（示例）
-export function mockMarkdownStream(callback) {
+export function mockMarkdownStream(callback, options = {}) {
+  const {
+    delay = 24, // 可配置的延迟时间
+    onError = null, // 错误回调
+    onComplete = null // 完成回调
+  } = options;
+
   const fullText = `
   <think>
-  用户问 “你能干什么”
+  用户问 "你能干什么"
   <citation>2233333
   - [Vue源码](https://github.com/vuejs/vue)
   - [JavaScript官网](https://www.javascript.com/)
 
    <think>
-  用户问 “你能干什么”
+  用户问 "你能干什么"
   <citation>2233333
   - [Vue源码](https://github.com/vuejs/vue)
   - [JavaScript官网](https://www.javascript.com/)
@@ -25,29 +31,53 @@ export function mockMarkdownStream(callback) {
   `;
 
   let i = 0;
+  let timeoutId = null;
+  let isCancelled = false;
+
   function push() {
-    if (i < fullText.length) {
-      // 检查是否遇到标签开始
-      if (fullText[i] === "<") {
-        // 找到标签结束位置
-        let tagEnd = fullText.indexOf(">", i);
-        if (tagEnd !== -1) {
-          // 整个标签一起返回
-          const tag = fullText.substring(i, tagEnd + 1);
-          callback(tag);
-          i = tagEnd + 1;
+    if (isCancelled) return;
+    
+    try {
+      if (i < fullText.length) {
+        // 检查是否遇到标签开始
+        if (fullText[i] === "<") {
+          // 找到标签结束位置
+          let tagEnd = fullText.indexOf(">", i);
+          if (tagEnd !== -1) {
+            // 整个标签一起返回
+            const tag = fullText.substring(i, tagEnd + 1);
+            callback(tag);
+            i = tagEnd + 1;
+          } else {
+            // 如果没有找到结束标签，按字符返回
+            callback(fullText[i]);
+            i++;
+          }
         } else {
-          // 如果没有找到结束标签，按字符返回
+          // 普通字符按字符返回
           callback(fullText[i]);
           i++;
         }
+        timeoutId = setTimeout(push, delay);
       } else {
-        // 普通字符按字符返回
-        callback(fullText[i]);
-        i++;
+        // 流式输出完成
+        onComplete && onComplete();
       }
-      setTimeout(push, 24); // 每 24ms 输出一个字符（可调整）
+    } catch (error) {
+      console.error('流式输出错误:', error);
+      onError && onError(error);
     }
   }
+
+  // 启动流式输出
   push();
+
+  // 返回取消函数
+  return () => {
+    isCancelled = true;
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  };
 }
